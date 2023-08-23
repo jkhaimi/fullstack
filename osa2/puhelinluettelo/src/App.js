@@ -3,13 +3,21 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/personService'
-import axios from 'axios'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this person?")) {
+        personService.deletePerson(id)
+            .then(() => {
+                setPersons(persons.filter(person => person.id !== id))
+            })
+    }
+}
 
   useEffect(() => {
     personService.getPersons().then(data => setPersons(data))
@@ -61,7 +69,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons filteredPersons={filteredPersons}/>
+      <Persons filteredPersons={filteredPersons} handleDelete={handleDelete}/>
     </div>
   )
 
