@@ -37,22 +37,46 @@ const App = () => {
   }
 
   const addPerson = (event) => {
-    event.preventDefault()
-
-  const newPerson = {
-    name: newName,
-    number: newNumber
-  }
-
-  if(persons.some(person => person.name === newName)) {
-  alert(`${newName} is already added to the phonebook`)
-  } else
-  setPersons(persons.concat(newPerson))
-  setNewName('')
-  setNewNumber('')
-
-  personService.addPerson(newPerson).then(data => setPersons(persons.concat(data)))
-}
+    event.preventDefault();
+  
+    const newPerson = {
+      name: newName,
+      number: newNumber,
+    };
+  
+    const existingPerson = persons.find((person) => person.name === newName);
+  
+    if (existingPerson) {
+      if (existingPerson.number === newNumber) {
+        // Henkilö samalla nimellä ja numerolla on jo olemassa
+        alert(`${newName} is already added to the phonebook.`);
+        setNewName('');
+        setNewNumber('');
+      } 
+      
+      else {
+        // Henkilö samalla nimellä mutta eri numerolla on olemassa
+        const confirmMessage = `${newName} is already added to the phonebook. Do you want to update the old number with the new number?`;
+        if (window.confirm(confirmMessage)) {
+          const updatedPerson = { ...existingPerson, number: newNumber };
+          personService.updatePerson(existingPerson.id, updatedPerson)
+            .then((data) => {
+              setPersons(persons.map((person) => (person.id === data.id ? data : person)));
+            });
+          setNewName('');
+          setNewNumber('');
+        }
+      }
+    } 
+    
+    else {
+      // Henkilöä ei ole vielä olemassa
+      setPersons(persons.concat(newPerson));
+      setNewName('');
+      setNewNumber('');
+      personService.addPerson(newPerson).then(data => setPersons(persons.concat(data)));
+    }
+  };
 
   const filteredPersons = persons.filter(person =>
     person.name.toLowerCase().includes(searchTerm.toLowerCase()))
