@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react'
+import './App.css'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/personService'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this person?")) {
-        personService.deletePerson(id)
-            .then(() => {
-                setPersons(persons.filter(person => person.id !== id))
-            })
-    }
-}
 
   useEffect(() => {
     personService.getPersons().then(data => setPersons(data))
@@ -36,6 +32,20 @@ const App = () => {
     setSearchTerm(event.target.value)
   }
 
+  const handleDelete = (id) => {
+    const personToDelete = persons.find((person) => person.id === id)
+    if (window.confirm("Are you sure you want to delete this person?")) {
+      personService.deletePerson(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id));
+          setSuccessMessage(`Deleted ${personToDelete.name}`);
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 3000);
+        })
+    }
+  }
+
   const addPerson = (event) => {
     event.preventDefault();
   
@@ -49,7 +59,13 @@ const App = () => {
     if (existingPerson) {
       if (existingPerson.number === newNumber) {
         // Henkilö samalla nimellä ja numerolla on jo olemassa
-        alert(`${newName} is already added to the phonebook.`);
+        setErrorMessage(
+          `Person '${newName}' with the number '${newNumber}' is already on the list`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 3000)
+
         setNewName('');
         setNewNumber('');
       } 
@@ -63,6 +79,12 @@ const App = () => {
             .then((data) => {
               setPersons(persons.map((person) => (person.id === data.id ? data : person)));
             });
+          setSuccessMessage(
+            `The number of ${newName} was changed successfully`
+          )
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 3000)
           setNewName('');
           setNewNumber('');
         }
@@ -72,9 +94,15 @@ const App = () => {
     else {
       // Henkilöä ei ole vielä olemassa
       setPersons(persons.concat(newPerson));
+      personService.addPerson(newPerson).then(data => setPersons(persons.concat(data)));
+      setSuccessMessage (
+        `${newName} added successfully`
+      )
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 3000)
       setNewName('');
       setNewNumber('');
-      personService.addPerson(newPerson).then(data => setPersons(persons.concat(data)));
     }
   };
 
@@ -85,6 +113,9 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification errorMessage={errorMessage} successMessage={successMessage} />
+
       <Filter searchTerm={searchTerm} handleSearchChange={handleSearchChange}/>
 
       <h3>add a new</h3>
