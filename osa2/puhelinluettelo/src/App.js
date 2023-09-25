@@ -78,18 +78,24 @@ const App = () => {
           personService.updatePerson(existingPerson.id, updatedPerson)
             .then((data) => {
               setPersons(persons.map((person) => (person.id === data.id ? data : person)));
+              setSuccessMessage(
+                `The number of ${newName} was changed successfully`
+              );
+              setTimeout(() => {
+                setSuccessMessage(null);
+              }, 3000);
+              setNewName('');
+              setNewNumber('');
+            })
+            .catch((error) => {
+              setErrorMessage(`Information of '${newName}' has already been removed from the server`);
+              setTimeout(() => {
+                setErrorMessage(null);
+              }, 3000);
             });
-          setSuccessMessage(
-            `The number of ${newName} was changed successfully`
-          )
-          setTimeout(() => {
-            setSuccessMessage(null)
-          }, 3000)
-          setNewName('');
-          setNewNumber('');
         }
-      }
-    } 
+      }}
+      
     
     else {
       // Henkilöä ei ole vielä olemassa
@@ -103,6 +109,7 @@ const App = () => {
       }, 3000)
       setNewName('');
       setNewNumber('');
+      
     }
   };
 

@@ -7,7 +7,8 @@ const getPersons = () => {
 }
 
 const addPerson = (newPerson) => {
-    return axios.post(baseUrl, newPerson).then(response => response.data);
+    return axios.post(baseUrl, newPerson)
+    .then(response => response.data);
 }
 
 const deletePerson = (id) => {
@@ -15,7 +16,11 @@ const deletePerson = (id) => {
 }
 
 const updatePerson = (id, updatedPerson) => {
-    return axios.put(`${baseUrl}/${id}`, updatedPerson).then(response => response.data);
+    return axios.put(`${baseUrl}/${id}`, updatedPerson)
+    .then(response => response.data)
+    .catch(error => {
+        throw error.response.data
+    })
 }
 
 export default { getPersons, addPerson, deletePerson, updatePerson };
