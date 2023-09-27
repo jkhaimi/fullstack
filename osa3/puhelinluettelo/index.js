@@ -25,14 +25,42 @@ let persons = [
 ]
 
 app.get('/', (req, res) => {
-    res.send('<h1>Hello World!</h1>')
+  res.send('<h1>Hello World!</h1>')
+})
+
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
+})
+
+app.get('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  const person = persons.find(person => {
+    console.log(person.id, typeof person.id, id, typeof id, person.id === id)
+    return person.id === id
   })
   
-  app.get('/api/persons', (req, res) => {
-    res.json(persons)
-  })
-  
-  const PORT = 3001
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-  })
+  console.log(person)
+
+  if (person) {
+    res.json(person)
+  } else {
+    res.status(404).end()
+  }
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  persons = persons.filter(person => person.id !== id)
+
+  res.status(204).end()
+})
+
+app.get('/info', (req, res) => {
+  const currentTime = new Date().toString();
+  res.send(`Phonebook has info of ${persons.length} people. <br> ${currentTime}`)
+})
+
+const PORT = 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
