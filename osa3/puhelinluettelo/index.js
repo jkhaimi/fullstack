@@ -48,16 +48,9 @@ app.get('/api/persons/:id', (req, res) => {
   }
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter(person => person.id !== id)
-
-  res.status(204).end()
-})
-
 app.get('/info', (req, res) => {
-  const currentTime = new Date().toString();
-  res.send(`Phonebook has info of ${persons.length} people. <br> ${currentTime}`)
+  const RequestTime = new Date().toString();
+  res.send(`Phonebook has info of ${persons.length} people. <br> ${RequestTime}`)
 })
 
 const PORT = 3001
