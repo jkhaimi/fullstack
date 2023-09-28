@@ -1,7 +1,18 @@
 const { response } = require('express')
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 app.use(express.json())
+app.use(morgan('tiny'))
+
+morgan.token('person-info', (req) => {
+  if (req.method === 'POST') {
+    const body = JSON.stringify(req.body)
+    return body
+  }
+})
+
+app.use(morgan(':method :url :status - :response-time ms :person-info'));
 
 let persons = [
   {
@@ -91,7 +102,7 @@ app.post('/api/persons', (req, res) => {
 
   if (!body.name || !body.number) {
     console.log('Name and number are required');
-    return response.status(400).json({
+    return res.status(400).json({
       error: 'name and number are required'
     })
   }
@@ -101,7 +112,7 @@ app.post('/api/persons', (req, res) => {
 
   if (NameExists) {
     console.log("name must be unique")
-    return response.status(400).json({
+    return res.status(400).json({
       error: 'name must be unique'
     })
   }
