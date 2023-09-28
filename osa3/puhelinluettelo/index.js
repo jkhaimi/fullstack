@@ -1,3 +1,4 @@
+const { response } = require('express')
 const express = require('express')
 const app = express()
 app.use(express.json())
@@ -88,9 +89,24 @@ app.post('/api/persons', (req, res) => {
     number: body.number
   }
 
-  persons = persons.concat(person)
+  if (!body.name || !body.number) {
+    console.log('Name and number are required');
+    return response.status(400).json({
+      error: 'name and number are required'
+    })
+  }
 
-  console.log(person)
+
+  const NameExists = persons.some(person => person.name === body.name)
+
+  if (NameExists) {
+    console.log("name must be unique")
+    return response.status(400).json({
+      error: 'name must be unique'
+    })
+  }
+
+  persons = persons.concat(person)
   res.json(person)
 })
 
